@@ -348,7 +348,7 @@ namespace LF {
 
 	private:
 
-		control_block<Tp>* ctr;
+		control_block<Tp>* volatile ctr;
 
 		friend class control_block<Tp>;
 		friend class weak_ptr<Tp>;
@@ -375,13 +375,13 @@ namespace LF {
 		}
 
 	private:
-		bool CAS(control_block<Tp>** memory, control_block<Tp>* oldaddr, control_block<Tp>* newaddr)
+		bool CAS(control_block<Tp>* volatile* memory, control_block<Tp>* oldaddr, control_block<Tp>* newaddr)
 		{
 			_p_size_ old_addr = reinterpret_cast<_p_size_>(oldaddr);
 			_p_size_ new_addr = reinterpret_cast<_p_size_>(newaddr);
 
 			return std::atomic_compare_exchange_strong
-			(reinterpret_cast<_p_type_*>(memory), &old_addr, new_addr);
+			(reinterpret_cast<volatile _p_type_*>(memory), &old_addr, new_addr);
 		}
 
 		control_block<Tp>* add_shared_copy() const
@@ -706,7 +706,7 @@ namespace LF {
 	class weak_ptr {
 	private:
 
-		control_block<Tp>* ctr;
+		control_block<Tp>* volatile ctr;
 
 		friend class control_block<Tp>;
 		friend class shared_ptr<Tp>;
@@ -765,13 +765,13 @@ namespace LF {
 			}
 		}
 
-		bool CAS(control_block<Tp>** memory, control_block<Tp>* oldaddr, control_block<Tp>* newaddr)
+		bool CAS(control_block<Tp>* volatile* memory, control_block<Tp>* oldaddr, control_block<Tp>* newaddr)
 		{
 			_p_size_ old_addr = reinterpret_cast<_p_size_>(oldaddr);
 			_p_size_ new_addr = reinterpret_cast<_p_size_>(newaddr);
 
 			return std::atomic_compare_exchange_strong
-			(reinterpret_cast<_p_type_*>(memory), &old_addr, new_addr);
+			(reinterpret_cast<volatile _p_type_*>(memory), &old_addr, new_addr);
 		}
 
 		void Set_enable_shared(const shared_ptr<Tp>& other)
